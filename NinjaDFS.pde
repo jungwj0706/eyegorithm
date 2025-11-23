@@ -15,6 +15,7 @@ final int splitDuration = 60;
 
 int gridSize = 40;
 int nodeRadius = 15;
+
 int canvasWidth = 1400;
 int canvasHeight = 900;
 int uiPanelWidth = 300;
@@ -24,6 +25,7 @@ void setup() {
   size(1400, 900);
   PFont font = createFont("맑은 고딕", 12);
   textFont(font);
+  
   particles = new ParticleSystem();
   graph = new Graph();
   ui = new UIController();
@@ -115,6 +117,7 @@ void generateMaze(long seed) {
   isRunning = false;
   isPaused = false;
   currentStep = 0;
+  
   particles.clear();
   
   randomSeed(seed);

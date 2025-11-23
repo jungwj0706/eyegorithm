@@ -21,6 +21,8 @@ class UIController {
     textSize(20);
     text("DFS 닌자 미로 탈출", graphWidth + 20, 5);
     
+    if (visualizer == null) return;
+    
     int infoY = 80;
     fill(50, 50, 70);
     rect(graphWidth + 20, infoY, 260, 250);
