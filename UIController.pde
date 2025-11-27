@@ -23,7 +23,7 @@ class UIController {
         fill(255);
         textSize(18);
         textAlign(LEFT, TOP);
-        text("DFS 시각화 제어", graphWidth + 20, 20);
+        text("닌자 DFS의 미로 탈출 🔥", graphWidth + 20, 20);
 
         textSize(12);
         fill(200);
@@ -45,10 +45,9 @@ class UIController {
 
         textSize(12);
         fill(200);
-        text("--- 조작법 ---", graphWidth + 20, 150);
-        text("스페이스: 시작 / 일시정지", graphWidth + 20, 175);
-        text("S: 한 단계 실행", graphWidth + 20, 195);
-        text("R: 새 미로 생성", graphWidth + 20, 215);
+        text("< 조작법 >", graphWidth + 20, 150);
+        text("Soace: 시작 / 일시정지", graphWidth + 20, 175);
+        text("R: 새 미로 생성", graphWidth + 20, 195);
        
     }
 
