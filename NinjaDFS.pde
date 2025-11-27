@@ -36,27 +36,37 @@ void setup() {
 
 void draw() {
   background(20, 20, 30);
-  
+
   stroke(100);
   line(graphWidth, 0, graphWidth, height);
-  
+
   if (isRunning && !isPaused) {
     for (int i = 0; i < updatesPerFrame; i++) {
       visualizer.update();
     }
   }
-  
+
   particles.update();
-  
+
   pushMatrix();
-  translate(50, 50);
+
+  float mazeWidth  = graph.mazeCols * gridSize;
+  float mazeHeight = graph.mazeRows * gridSize;
+
+  float offsetX = (graphWidth - mazeWidth) / 2;
+  float offsetY = (height     - mazeHeight) / 2;
+
+  translate(offsetX, offsetY);
+
   graph.render();
   visualizer.render();
   particles.render();
+
   popMatrix();
-  
+
   ui.render();
 }
+
 
 void mousePressed() {
   ui.handleMousePressed();
@@ -122,8 +132,8 @@ void generateMaze(long seed) {
   
   randomSeed(seed);
   
-  int cols = 15;
-  int rows = 15;
+  int cols = 12;
+  int rows = 12;
   
   graph.clear();
   graph.generateGridMaze(cols, rows, gridSize);
