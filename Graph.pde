@@ -4,11 +4,16 @@ class Graph {
     int startNodeId;
     int goalNodeId;
     
+    int mazeCols;
+    int mazeRows;
+    
     Graph() {
         nodes = new ArrayList<Node>();
         edges = new ArrayList<Edge>();
         startNodeId = -1;
         goalNodeId = -1;
+        mazeCols = 0;
+        mazeRows = 0;
     }
     
     void clear() {
@@ -16,6 +21,8 @@ class Graph {
         edges.clear();
         startNodeId = -1;
         goalNodeId = -1;
+        mazeCols = 0;
+        mazeRows = 0;
     }
     
     void reset() {
@@ -70,6 +77,9 @@ class Graph {
     void generateGridMaze(int cols, int rows, int cellSize) {
         clear();
         
+        this.mazeCols = cols;
+        this.mazeRows = rows;
+        
         for (int r = 0; r < rows; r++) {
             for (int c = 0; c < cols; c++) {
                 float x = c * cellSize + cellSize/2;
@@ -79,7 +89,7 @@ class Graph {
         }
         
         boolean[] visited = new boolean[nodes.size()];
-        carveMaze(0, cols, rows, visited);
+        carveMaze(0, cols, rows, visited); 
         
         int extraPaths = cols * rows / 12;
         for (int i = 0; i < extraPaths; i++) {
@@ -98,10 +108,10 @@ class Graph {
         int row = current / cols;
         int col = current % cols;
         
-        if (row > 0) neighbors.add(current - cols);
-        if (row < rows - 1) neighbors.add(current + cols);
-        if (col > 0) neighbors.add(current - 1);
-        if (col < cols - 1) neighbors.add(current + 1);
+        if (row > 0) neighbors.add(current - cols); 
+        if (row < rows - 1) neighbors.add(current + cols); 
+        if (col > 0) neighbors.add(current - 1); 
+        if (col < cols - 1) neighbors.add(current + 1); 
         
         for (int i = neighbors.size() - 1; i > 0; i--) {
             int j = (int)random(i + 1);
@@ -110,6 +120,7 @@ class Graph {
             neighbors.set(j, temp);
         }
         
+        // 재귀적으로 방문
         for (int next : neighbors) {
             if (!visited[next]) {
                 addEdge(current, next);
@@ -135,7 +146,7 @@ class Graph {
     }
     
     void render() {
-        renderMazeWalls();
+        renderMazeWalls(); 
         
         for (Edge e : edges) {
             e.render();
@@ -147,10 +158,7 @@ class Graph {
     }
     
     void renderMazeWalls() {
-        if (nodes.isEmpty()) return;
-        
-        int cols = 15;
-        int rows = 15;
+        if (nodes.isEmpty() || mazeCols == 0 || mazeRows == 0) return;
         
         stroke(100, 100, 150);
         strokeWeight(3);
@@ -158,10 +166,10 @@ class Graph {
         for (int i = 0; i < nodes.size(); i++) {
             Node current = nodes.get(i);
             PVector pos = current.pos;
-            int row = i / cols;
-            int col = i % cols;
+            int row = i / mazeCols;
+            int col = i % mazeCols;
             
-            if (col < cols - 1) {
+            if (col < mazeCols - 1) {
                 Node right = nodes.get(i + 1);
                 if (!current.neighbors.contains(right)) {
                     line(pos.x + gridSize/2, pos.y - gridSize/2, 
@@ -169,8 +177,8 @@ class Graph {
                 }
             }
             
-            if (row < rows - 1) {
-                Node down = nodes.get(i + cols);
+            if (row < mazeRows - 1) {
+                Node down = nodes.get(i + mazeCols);
                 if (!current.neighbors.contains(down)) {
                     line(pos.x - gridSize/2, pos.y + gridSize/2, 
                          pos.x + gridSize/2, pos.y + gridSize/2);
@@ -189,17 +197,17 @@ class Graph {
                          pos.x - gridSize/2, pos.y + gridSize/2);
                 }
             }
-            if (col == cols - 1) {
+            if (col == mazeCols - 1) {
                 if (i != goalNodeId) {
                     line(pos.x + gridSize/2, pos.y - gridSize/2, 
                          pos.x + gridSize/2, pos.y + gridSize/2);
                 }
             }
-            if (row == rows - 1) {
+            if (row == mazeRows - 1) {
                  if (i != goalNodeId) {
                     line(pos.x - gridSize/2, pos.y + gridSize/2, 
                          pos.x + gridSize/2, pos.y + gridSize/2);
-                }
+                 }
             }
         }
     }
@@ -224,19 +232,18 @@ class Node {
     
     void render() {
         if (id == graph.startNodeId) {
-            fill(150, 255, 150);
+            fill(150, 255, 150); 
             stroke(200, 255, 200);
         } else if (id == graph.goalNodeId) {
-            fill(255, 150, 150);
-            stroke(255, 200, 200);
+            fill(255, 150, 150); 
         } else if (onSuccessPath) {
             fill(255, 215, 0);
             stroke(255, 255, 100);
         } else if (visited) {
-            fill(60, 60, 90);
+            fill(60, 60, 90); 
             stroke(90, 90, 120);
         } else {
-            fill(30, 30, 45);
+            fill(30, 30, 45); 
             stroke(60, 60, 80);
         }
         
@@ -263,11 +270,14 @@ class Edge {
     
     void render() {
         if (from.onSuccessPath && to.onSuccessPath) {
-            stroke(255, 215, 0, 250);
+            stroke(255, 215, 0, 250); 
             strokeWeight(5);
+        } else if (from.visited && to.visited) {
+             stroke(80, 80, 100, 200); 
+             strokeWeight(3);
         } else {
-            stroke(80, 80, 100);
-            strokeWeight(3);
+             stroke(80, 80, 100); 
+             strokeWeight(3);
         }
         
         line(from.pos.x, from.pos.y, to.pos.x, to.pos.y);

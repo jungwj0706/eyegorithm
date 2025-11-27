@@ -2,7 +2,7 @@ class DFSVisualizer {
     Graph graph;
     ArrayList<Clone> activeClones;
     ArrayList<Clone> fadingClones;
-    boolean useIterativeMode;
+    boolean useIterativeMode; 
     boolean foundGoal;
     int visitCounter;
     int stepCount;
@@ -48,7 +48,7 @@ class DFSVisualizer {
         stepCount++;
 
         while (activeClones.size() > maxClones) {
-            Clone removed = activeClones.remove(0);
+            Clone removed = activeClones.remove(0); 
             killClone(removed);
         }
 
@@ -62,7 +62,7 @@ class DFSVisualizer {
                 currentClone.moveProgress = 0;
                 currentClone.current = currentClone.target;
                 currentClone.target = null;
-                animationTimer = stopDuration + splitDuration;
+                animationTimer = (int)((stopDuration + splitDuration) / ui.speedMultiplier);
                 currentClone.isSplitting = false;
             }
             return;
@@ -70,8 +70,10 @@ class DFSVisualizer {
 
         if (animationTimer > 0) {
             animationTimer--;
-            if (animationTimer > stopDuration) {
-                currentClone.isSplitting = true;
+            int adjustedStopDuration = (int)(stopDuration / ui.speedMultiplier);
+            
+            if (animationTimer > adjustedStopDuration) {
+                currentClone.isSplitting = true; 
             } else {
                 currentClone.isSplitting = false;
             }
@@ -92,15 +94,19 @@ class DFSVisualizer {
         }
 
         if (unvisitedNeighbors.size() == 0) {
-            activeClones.remove(activeClones.size() - 1);
+            activeClones.remove(activeClones.size() - 1); 
+            
             if (activeClones.size() > 0) {
                 Clone parentClone = activeClones.get(activeClones.size() - 1);
                 currentClone.setReturnPath(parentClone.current);
             } else {
-                currentClone.setReturnPath(null);
+                currentClone.setReturnPath(null); 
             }
-            killClone(currentClone);
-        } else {
+            killClone(currentClone); 
+        } 
+        // 탐색 진행 (갈림길)
+        else {
+            // 첫 번째 이웃: 현재 클론이 이어서 탐색
             Node firstNeighbor = unvisitedNeighbors.get(0);
             firstNeighbor.visited = true;
             firstNeighbor.visitOrder = visitCounter++;
@@ -109,6 +115,7 @@ class DFSVisualizer {
             currentClone.isMoving = true;
             currentClone.path.add(firstNeighbor);
 
+            // 나머지 이웃들: 새로운 분신(클론) 생성해 스택에 Push
             for (int i = 1; i < unvisitedNeighbors.size(); i++) {
                 Node neighbor = unvisitedNeighbors.get(i);
                 neighbor.visited = true;
@@ -116,11 +123,11 @@ class DFSVisualizer {
 
                 Clone newClone = new Clone(currentClone.current, currentClone, currentClone.depth + 1);
                 newClone.target = neighbor;
-                newClone.isMoving = true;
-                newClone.path = (ArrayList<Node>)currentClone.path.clone();
+                newClone.isMoving = true; // 생성과 동시에 이동 시작
+                newClone.path = (ArrayList<Node>)currentClone.path.clone(); // 경로 복사
                 newClone.path.add(neighbor);
 
-                activeClones.add(newClone);
+                activeClones.add(newClone); // 스택에 Push
                 createSplitEffect(currentClone.current.pos);
             }
         }
@@ -168,11 +175,12 @@ class DFSVisualizer {
         }
     }
 
+
     void render() {
         for (Clone clone : fadingClones) {
             clone.render();
             if (!clone.alive && clone.returnPath != null) {
-                drawReturnPath(clone);
+                drawReturnPath(clone); 
             }
         }
 
@@ -185,13 +193,30 @@ class DFSVisualizer {
         }
         fadingClones.removeAll(fadedOut);
 
-        for (Clone clone : activeClones) {
-            clone.render();
+        for (int i = 0; i < activeClones.size(); i++) {
+            Clone clone = activeClones.get(i);
+            
+            if (i == activeClones.size() - 1) {
+                clone.render(); 
+            } else {
+                renderWaitingClone(clone); 
+            }
         }
 
         if (ui.showStack) {
             renderStackVisualization();
         }
+    }
+
+    void renderWaitingClone(Clone clone) {
+        PVector pos = clone.current.pos; 
+        color c = clone.getDepthColor();
+        
+        fill(red(c), green(c), blue(c), 70); 
+        stroke(255, 90);
+        strokeWeight(1);
+        circle(pos.x, pos.y, 10);
+        
     }
 
     void drawReturnPath(Clone clone) {
@@ -200,7 +225,7 @@ class DFSVisualizer {
 
         if (fromNode == null || toNode == null) return;
 
-        stroke(255, 100, 100, clone.fadeAlpha);
+        stroke(255, 100, 100, clone.fadeAlpha); 
         strokeWeight(2);
 
         float dashLen = 5;
@@ -224,14 +249,15 @@ class DFSVisualizer {
 
     void renderStackVisualization() {
         pushMatrix();
-        translate(graphWidth - 250, 50);
+        translate(graphWidth + 20, 250); 
 
         fill(40, 40, 60, 200);
-        rect(0, 0, 230, 400);
+        stroke(100, 100, 150);
+        rect(0, 0, uiPanelWidth - 40, 400);
 
         fill(255);
         textAlign(LEFT, TOP);
-        textSize(12);
+        textSize(14);
         text("활성 분신 스택 (LIFO)", 10, 10);
 
         int y = 35;
@@ -240,8 +266,17 @@ class DFSVisualizer {
         for (int i = 0; i < displayCount; i++) {
             Clone clone = activeClones.get(activeClones.size() - 1 - i);
 
-            fill(clone.getDepthColor(), 200);
-            rect(10, y, 210, 20);
+            color c = clone.getDepthColor();
+            
+            if (i == 0) {
+                 fill(red(c), green(c), blue(c), 220);
+                 stroke(255, 255, 150);
+                 rect(10, y, uiPanelWidth - 60, 20);
+            } else {
+                 fill(red(c), green(c), blue(c), 100);
+                 noStroke();
+                 rect(10, y, uiPanelWidth - 60, 20);
+            }
 
             fill(255);
             textSize(10);

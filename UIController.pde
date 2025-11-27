@@ -1,76 +1,72 @@
 class UIController {
-  boolean showVisitOrder = false;
-  boolean showStack = false;
-  boolean colorByDepth = true;
-  float speedMultiplier = 1.0;
-  
-  UIController() {
-    showVisitOrder = false;
-    showStack = false;
-    colorByDepth = true;
-    speedMultiplier = 1.0;
-  }
-  
-  void render() {
-    fill(30, 30, 40);
-    noStroke();
-    rect(graphWidth, 0, uiPanelWidth, height);
     
-    fill(255);
-    textAlign(LEFT, TOP);
-    textSize(20);
-    text("DFS 닌자 미로 탈출", graphWidth + 20, 5);
+    boolean colorByDepth = true;
+    boolean showVisitOrder = true;
+    boolean showStack = true;
+    float speedMultiplier = 1.0; 
     
-    if (visualizer == null) return;
+    float speedSliderX = graphWidth + 50;
+    float speedSliderY = 100;
+    float speedSliderWidth = 200;
+    float sliderHandleX;
+    boolean draggingSlider = false;
+
+    UIController() {
+        sliderHandleX = map(speedMultiplier, 0.1, 5.0, speedSliderX, speedSliderX + speedSliderWidth);
+    }
+
+    void render() {
+        fill(40, 40, 60);
+        noStroke();
+        rect(graphWidth, 0, uiPanelWidth, height);
+        
+        fill(255);
+        textSize(18);
+        textAlign(LEFT, TOP);
+        text("DFS 시각화 제어", graphWidth + 20, 20);
+
+        textSize(12);
+        fill(200);
+        text("속도 배율: " + nf(speedMultiplier, 1, 1) + "x", graphWidth + 20, 70);
+        
+        fill(80);
+        noStroke();
+        rect(speedSliderX, speedSliderY, speedSliderWidth, 10, 5);
+        
+        // 슬라이더 핸들
+        if (draggingSlider) {
+            fill(200, 220, 255); 
+        } else {
+            fill(150, 180, 255);
+        }
+        stroke(255);
+        strokeWeight(2);
+        circle(sliderHandleX, speedSliderY + 5, 16);
+
+        textSize(12);
+        fill(200);
+        text("--- 조작법 ---", graphWidth + 20, 150);
+        text("스페이스: 시작 / 일시정지", graphWidth + 20, 175);
+        text("S: 한 단계 실행", graphWidth + 20, 195);
+        text("R: 새 미로 생성", graphWidth + 20, 215);
+       
+    }
+
+    void handleMousePressed() {
+        if (dist(mouseX, mouseY, sliderHandleX, speedSliderY + 5) < 10) {
+            draggingSlider = true;
+        }
+        
+    }
     
-    int infoY = 80;
-    fill(50, 50, 70);
-    rect(graphWidth + 20, infoY, 260, 250);
+    void handleMouseDragged() {
+        if (draggingSlider) {
+            sliderHandleX = constrain(mouseX, speedSliderX, speedSliderX + speedSliderWidth);
+            speedMultiplier = map(sliderHandleX, speedSliderX, speedSliderX + speedSliderWidth, 0.1, 5.0);
+        }
+    }
     
-    fill(200, 200, 255);
-    textSize(15);
-    text("현재 상태", graphWidth + 30, infoY + 10);
-    
-    fill(255);
-    textSize(15);
-    int lineY = infoY + 35;
-    
-    text("상태: " + (isRunning ? (isPaused ? "일시정지" : "실행 중") : "대기"), 
-         graphWidth + 30, lineY);
-    lineY += 25;
-    
-    text("활성 분신: " + visualizer.activeClones.size(), 
-         graphWidth + 30, lineY);
-    lineY += 25;
-    
-    text("페이딩 분신: " + visualizer.fadingClones.size(), 
-         graphWidth + 30, lineY);
-    lineY += 25;
-    
-    text("방문한 노드: " + visualizer.visitCounter + " / " + graph.nodes.size(), 
-         graphWidth + 30, lineY);
-    lineY += 25;
-    
-    text("스텝 수: " + visualizer.stepCount, 
-         graphWidth + 30, lineY);
-    lineY += 25;
-    
-    text("목표 발견: " + (visualizer.foundGoal ? "예" : "아니오"), 
-         graphWidth + 30, lineY);
-    lineY += 30;
-    
-    fill(200, 200, 255);
-    textSize(15);
-    text("키 입력:", graphWidth + 30, lineY);
-    lineY += 18;
-    fill(255);
-    textSize(15);
-    text("Space: 시작/일시정지", graphWidth + 30, lineY);
-    lineY += 18;
-    text("R: 새 미로 생성(초기화)", graphWidth + 30, lineY);
-  }
-  
-  void handleMousePressed() { }
-  void handleMouseDragged() { }
-  void handleMouseReleased() { }
+    void handleMouseReleased() {
+        draggingSlider = false;
+    }
 }
